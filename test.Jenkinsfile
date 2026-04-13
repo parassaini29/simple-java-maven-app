@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+    tools{
+     maven 'Maven'
+    }
+    options {
+        skipStagesAfterUnstable()
+    }
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn -B -DskipTests clean package'
+            }
+        }
+        stage('Demo1'){
+            steps{
+                echo "This is a test!!"
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+        stage('Deliver') { 
+            steps {
+                sh './jenkins/scripts/deliver.sh' 
+            }
+        }
+        stage('Complete'){
+              steps{
+                  echo "Job Completed!!"
+              }
+        }
+    }
+}
